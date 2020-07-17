@@ -25,7 +25,6 @@
           "mark": {
             "type": "tick",
             "orient": "vertical",
-            "aria": false,
             "style": "errorbar-ticks",
             "color": "teal"
           },
@@ -61,7 +60,6 @@
           "mark": {
             "type": "tick",
             "orient": "vertical",
-            "aria": false,
             "style": "errorbar-ticks",
             "color": "teal"
           },

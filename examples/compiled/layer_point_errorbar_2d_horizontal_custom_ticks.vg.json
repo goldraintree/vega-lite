@@ -75,7 +75,6 @@
       "name": "layer_0_layer_0_marks",
       "type": "rect",
       "style": ["tick", "errorbar-ticks"],
-      "aria": false,
       "from": {"data": "data_2"},
       "encode": {
         "update": {
@@ -83,6 +82,10 @@
           "fill": {"value": "teal"},
           "tooltip": {
             "signal": "{\"Mean of yield\": format(datum[\"center_yield\"], \"\"), \"Mean + stderr of yield\": format(datum[\"upper_yield\"], \"\"), \"Mean - stderr of yield\": format(datum[\"lower_yield\"], \"\"), \"variety\": isValid(datum[\"variety\"]) ? datum[\"variety\"] : \"\"+datum[\"variety\"]}"
+          },
+          "ariaRoleDescription": {"value": "tick"},
+          "description": {
+            "signal": "\"yield: \" + (format(datum[\"lower_yield\"], \"\")) + \"; variety: \" + (isValid(datum[\"variety\"]) ? datum[\"variety\"] : \"\"+datum[\"variety\"]) + \"; Mean of yield: \" + (format(datum[\"center_yield\"], \"\")) + \"; Mean + stderr of yield: \" + (format(datum[\"upper_yield\"], \"\")) + \"; Mean - stderr of yield: \" + (format(datum[\"lower_yield\"], \"\"))"
           },
           "xc": [
             {
@@ -101,7 +104,6 @@
       "name": "layer_0_layer_1_marks",
       "type": "rect",
       "style": ["tick", "errorbar-ticks"],
-      "aria": false,
       "from": {"data": "data_3"},
       "encode": {
         "update": {
@@ -109,6 +111,10 @@
           "fill": {"value": "teal"},
           "tooltip": {
             "signal": "{\"Mean of yield\": format(datum[\"center_yield\"], \"\"), \"Mean + stderr of yield\": format(datum[\"upper_yield\"], \"\"), \"Mean - stderr of yield\": format(datum[\"lower_yield\"], \"\"), \"variety\": isValid(datum[\"variety\"]) ? datum[\"variety\"] : \"\"+datum[\"variety\"]}"
+          },
+          "ariaRoleDescription": {"value": "tick"},
+          "description": {
+            "signal": "\"yield: \" + (format(datum[\"upper_yield\"], \"\")) + \"; variety: \" + (isValid(datum[\"variety\"]) ? datum[\"variety\"] : \"\"+datum[\"variety\"]) + \"; Mean of yield: \" + (format(datum[\"center_yield\"], \"\")) + \"; Mean + stderr of yield: \" + (format(datum[\"upper_yield\"], \"\")) + \"; Mean - stderr of yield: \" + (format(datum[\"lower_yield\"], \"\"))"
           },
           "xc": [
             {
