@@ -2,13 +2,13 @@ import {AggregateOp} from 'vega';
 import {ErrorBarCenter, ErrorBarExtent} from '../../src/compositemark/errorbar';
 import {defaultConfig} from '../../src/config';
 import * as log from '../../src/log';
-import {isMarkDef} from '../../src/mark';
+import {isMarkDef, TickConfig} from '../../src/mark';
 import {normalize} from '../../src/normalize';
 import {isLayerSpec, isUnitSpec} from '../../src/spec';
 import {TopLevelUnitSpec} from '../../src/spec/unit';
 import {isAggregate, isCalculate, Transform} from '../../src/transform';
 import {some} from '../../src/util';
-import {assertIsUnitSpec} from '../util';
+import {assertIsLayerSpec, assertIsUnitSpec} from '../util';
 
 describe('normalizeErrorBar with raw data input', () => {
   it('should produce correct layered specs for mean point and vertical error bar', () => {
@@ -366,6 +366,121 @@ describe('normalizeErrorBar with raw data input', () => {
       {field: 'age', type: 'ordinal'}
     ]);
   });
+
+  it('should drop size in encoding channel', () => {
+    const outputSpec = normalize(
+      {
+        data: {url: 'data/population.json'},
+        mark: {type: 'errorbar'},
+        encoding: {x: {field: 'age', type: 'quantitative'}, size: {value: 3}}
+      },
+      defaultConfig
+    );
+
+    assertIsUnitSpec(outputSpec);
+    expect(outputSpec.encoding.size).toBeFalsy();
+  });
+
+  it('should apply mark.size to only size of ticks', () => {
+    const size = 10;
+    const outputSpec = normalize(
+      {
+        data: {url: 'data/population.json'},
+        mark: {type: 'errorbar', size, ticks: true},
+        encoding: {x: {field: 'age', type: 'quantitative'}}
+      },
+      defaultConfig
+    );
+
+    assertIsLayerSpec(outputSpec);
+    for (const layer of outputSpec.layer) {
+      if (layer['mark']) {
+        if (layer['mark']['type'] === 'tick') {
+          expect(layer['mark']['size']).toBe(size);
+        } else {
+          expect(layer['mark']['size']).toBeFalsy();
+        }
+      }
+    }
+  });
+
+  it('should override mark.size with mark.ticks.size', () => {
+    const size = 10;
+    const tickSize = 5;
+    const outputSpec = normalize(
+      {
+        data: {url: 'data/population.json'},
+        mark: {type: 'errorbar', size, ticks: {size: tickSize}},
+        encoding: {x: {field: 'age', type: 'quantitative'}}
+      },
+      defaultConfig
+    );
+
+    assertIsLayerSpec(outputSpec);
+    for (const layer of outputSpec.layer) {
+      if (layer['mark']) {
+        if (layer['mark']['type'] === 'tick') {
+          expect(layer['mark']['size']).toBe(tickSize);
+        } else {
+          expect(layer['mark']['size']).toBeFalsy();
+        }
+      }
+    }
+  });
+
+  it('should apply mark.thickness to both thickness of ticks and size of rule', () => {
+    const thickness = 10;
+    const outputSpec = normalize(
+      {
+        data: {url: 'data/population.json'},
+        mark: {type: 'errorbar', thickness, ticks: true},
+        encoding: {x: {field: 'age', type: 'quantitative'}}
+      },
+      defaultConfig
+    );
+
+    assertIsLayerSpec(outputSpec);
+    for (const layer of outputSpec.layer) {
+      if (layer['mark']) {
+        if (layer['mark']['type'] === 'tick') {
+          expect(layer['mark']['thickness']).toBe(thickness);
+        } else {
+          expect(layer['mark']['size']).toBe(thickness);
+        }
+      }
+    }
+  });
+
+  it('should override mark.thickness with mark.ticks.thickness and mark.rule.size', () => {
+    const thickness = 10;
+    const tickThickness = 5;
+    const ruleSize = 7;
+
+    const outputSpec = normalize(
+      {
+        data: {url: 'data/population.json'},
+        mark: {
+          type: 'errorbar',
+          thickness,
+          ticks: {thickness: tickThickness} as TickConfig,
+          rule: {size: ruleSize}
+        },
+        encoding: {x: {field: 'age', type: 'quantitative'}}
+      },
+      defaultConfig
+    );
+
+    assertIsLayerSpec(outputSpec);
+    for (const layer of outputSpec.layer) {
+      if (layer['mark']) {
+        if (layer['mark']['type'] === 'tick') {
+          expect(layer['mark']['thickness']).toBe(tickThickness);
+        } else {
+          expect(layer['mark']['size']).toBe(ruleSize);
+        }
+      }
+    }
+  });
 });
 
 describe('normalizeErrorBar for all possible extents and centers with raw data input', () => {
@@ -563,7 +678,7 @@ describe('normalizeErrorBar with aggregated upper and lower bound input', () => 
       if (isCalculate(calculate)) {
         expect(
           (calculate.calculate === 'datum["people"]' && calculate.as === 'lower_people') ||
-            (calculate.calculate === 'datum["people2"]' && calculate.as === 'upper_people')
+          (calculate.calculate === 'datum["people2"]' && calculate.as === 'upper_people')
         ).toBe(true);
       } else {
         expect(false).toBe(true);
@@ -733,7 +848,7 @@ describe('normalizeErrorBar with aggregated error input', () => {
       if (isCalculate(calculate)) {
         expect(
           (calculate.calculate === 'datum["people"] - datum["people_error"]' && calculate.as === 'lower_people') ||
-            (calculate.calculate === 'datum["people"] + datum["people_error"]' && calculate.as === 'upper_people')
+          (calculate.calculate === 'datum["people"] + datum["people_error"]' && calculate.as === 'upper_people')
         ).toBe(true);
       } else {
         expect(false).toBe(true);
@@ -769,7 +884,7 @@ describe('normalizeErrorBar with aggregated error input', () => {
       if (isCalculate(calculate)) {
         expect(
           (calculate.calculate === 'datum["people"] + datum["people_error"]' && calculate.as === 'upper_people') ||
-            (calculate.calculate === 'datum["people"] + datum["people_error2"]' && calculate.as === 'lower_people')
+          (calculate.calculate === 'datum["people"] + datum["people_error2"]' && calculate.as === 'lower_people')
         ).toBe(true);
       } else {
         expect(false).toBe(true);
